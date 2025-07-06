@@ -11,8 +11,37 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
+// Define interfaces for form data and errors
+interface ContactFormData {
+  name: string;
+  phone: string;
+  email: string;
+  message: string;
+  preferredTime: string;
+  agreeToContact: boolean;
+}
+
+interface ConsultationFormData {
+  name: string;
+  phone: string;
+  email: string;
+  preferredTime: string;
+  concerns: string;
+  agreeToContact: boolean;
+}
+
+interface FormErrors {
+  name?: string;
+  phone?: string;
+  email?: string;
+  message?: string;
+  preferredTime?: string;
+  concerns?: string;
+  agreeToContact?: string;
+}
+
 export default function Home() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     phone: '',
     email: '',
@@ -21,7 +50,7 @@ export default function Home() {
     agreeToContact: false
   });
 
-  const [consultationData, setConsultationData] = useState({
+  const [consultationData, setConsultationData] = useState<ConsultationFormData>({
     name: '',
     phone: '',
     email: '',
@@ -30,8 +59,8 @@ export default function Home() {
     agreeToContact: false
   });
 
-  const [errors, setErrors] = useState({});
-  const [consultationErrors, setConsultationErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [consultationErrors, setConsultationErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConsultationSubmitting, setIsConsultationSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -39,23 +68,23 @@ export default function Home() {
   const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
   const [isApproachModalOpen, setIsApproachModalOpen] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {};
-    
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
-    if (!formData.message.trim()) newErrors.message = 'Please tell us what brings you here';
-    if (!formData.preferredTime.trim()) newErrors.preferredTime = 'Please specify your preferred time';
+    if (!formData.message.trim()) newErrors.message = 'Message is required';
+    if (!formData.preferredTime.trim()) newErrors.preferredTime = 'Preferred time is required';
     if (!formData.agreeToContact) newErrors.agreeToContact = 'Please agree to be contacted';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateConsultationForm = () => {
-    const newErrors = {};
+  const validateConsultationForm = (): boolean => {
+    const newErrors: FormErrors = {};
     
     if (!consultationData.name.trim()) newErrors.name = 'Name is required';
     if (!consultationData.phone.trim()) newErrors.phone = 'Phone number is required';
@@ -69,7 +98,7 @@ export default function Home() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -82,7 +111,7 @@ export default function Home() {
     setIsSubmitting(false);
   };
 
-  const handleConsultationSubmit = async (e) => {
+  const handleConsultationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateConsultationForm()) return;
 
@@ -95,16 +124,16 @@ export default function Home() {
     setIsConsultationSubmitting(false);
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof ContactFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
+    if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const handleConsultationInputChange = (field, value) => {
+  const handleConsultationInputChange = (field: keyof ConsultationFormData, value: string | boolean) => {
     setConsultationData(prev => ({ ...prev, [field]: value }));
-    if (consultationErrors[field]) {
+    if (consultationErrors[field as keyof FormErrors]) {
       setConsultationErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
@@ -280,7 +309,7 @@ export default function Home() {
                       <Checkbox
                         id="consultation-agree"
                         checked={consultationData.agreeToContact}
-                        onCheckedChange={(checked) => handleConsultationInputChange('agreeToContact', checked)}
+                        onCheckedChange={(checked) => handleConsultationInputChange('agreeToContact', checked as boolean)}
                         className={consultationErrors.agreeToContact ? 'border-red-500' : ''}
                       />
                       <Label htmlFor="consultation-agree" className="text-sm text-gray-700 leading-5">
@@ -883,7 +912,7 @@ export default function Home() {
                     <Checkbox
                       id="agreeToContact"
                       checked={formData.agreeToContact}
-                      onCheckedChange={(checked) => handleInputChange('agreeToContact', checked)}
+                      onCheckedChange={(checked) => handleInputChange('agreeToContact', checked as boolean)}
                       className={errors.agreeToContact ? 'border-red-500' : ''}
                     />
                     <Label htmlFor="agreeToContact" className="text-sm text-gray-700 leading-6">
